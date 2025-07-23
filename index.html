@@ -6,28 +6,21 @@
   <style>
     body {
       margin: 0;
-      overflow: hidden;
-      touch-action: manipulation;
-      font-family: Arial, sans-serif;
       background: #000;
       color: #fff;
+      font-family: Arial, sans-serif;
       display: flex;
+      height: 100vh;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      user-select: none;
-      flex-direction: column;
       text-align: center;
+      user-select: none;
       padding: 1rem;
     }
-    #loading {
+    #loading, #fallback {
       font-size: 1.2rem;
     }
-    #fallback {
-      display: none;
-      font-size: 1.2rem;
-    }
-    a {
+    #fallback a {
       color: #0af;
       text-decoration: underline;
       cursor: pointer;
@@ -35,9 +28,9 @@
   </style>
 </head>
 <body>
-  <div id="loading">Loading AR experience...</div>
 
-  <div id="fallback">
+  <div id="loading">Loading AR experience...</div>
+  <div id="fallback" style="display:none;">
     <p>AR is not supported on this device/browser.</p>
     <p>
       <a id="usdzLink" href="#" rel="ar" target="_blank" aria-label="View model in AR">Tap here to view the model in AR</a>
@@ -50,6 +43,7 @@
     }
 
     if (isIOS()) {
+      // Show fallback immediately for iOS
       document.getElementById('loading').style.display = 'none';
       const fallback = document.getElementById('fallback');
       const usdzURL = 'https://cmorones15.github.io/ar-sm-sticker/box.usdz';
@@ -57,20 +51,21 @@
       usdzLink.href = usdzURL;
       fallback.style.display = 'block';
     } else {
-      // Load the WebXR app for supported devices
+      // Load WebXR app for other devices
       const script = document.createElement('script');
       script.type = 'module';
       script.src = 'app.js';
       document.body.appendChild(script);
 
-      // Hide loading message once ARButton loads
+      // Hide loading once ARButton is available
       const interval = setInterval(() => {
         if (document.querySelector('.ar-button')) {
           document.getElementById('loading').style.display = 'none';
           clearInterval(interval);
         }
-      }, 500);
+      }, 200);
     }
   </script>
+
 </body>
 </html>
