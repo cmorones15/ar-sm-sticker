@@ -1,11 +1,31 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Drop a Box AR</title>
-  <script type="module" src="app_v2.js"></script>
+  <title>Three.js ARButton Test</title>
 </head>
 <body style="margin:0; overflow:hidden;">
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera();
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.xr.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+document.body.appendChild(ARButton.createButton(renderer));
+
+function animate() {
+  renderer.setAnimationLoop(() => {
+    renderer.render(scene, camera);
+  });
+}
+animate();
+</script>
+
 </body>
 </html>
