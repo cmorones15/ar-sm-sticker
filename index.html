@@ -17,7 +17,7 @@
       user-select: none;
       padding: 1rem;
     }
-    #loading, #fallback {
+    #fallback {
       font-size: 1.2rem;
     }
     #fallback a {
@@ -29,7 +29,6 @@
 </head>
 <body>
 
-  <div id="loading">Loading AR experience...</div>
   <div id="fallback" style="display:none;">
     <p>AR is not supported on this device/browser.</p>
     <p>
@@ -43,27 +42,18 @@
     }
 
     if (isIOS()) {
-      // Show fallback immediately for iOS
-      document.getElementById('loading').style.display = 'none';
+      // Show only fallback on iOS, no app.js loaded
       const fallback = document.getElementById('fallback');
       const usdzURL = 'https://cmorones15.github.io/ar-sm-sticker/box.usdz';
       const usdzLink = document.getElementById('usdzLink');
       usdzLink.href = usdzURL;
       fallback.style.display = 'block';
     } else {
-      // Load WebXR app for other devices
+      // Load WebXR app for all other devices
       const script = document.createElement('script');
       script.type = 'module';
       script.src = 'app.js';
       document.body.appendChild(script);
-
-      // Hide loading once ARButton is available
-      const interval = setInterval(() => {
-        if (document.querySelector('.ar-button')) {
-          document.getElementById('loading').style.display = 'none';
-          clearInterval(interval);
-        }
-      }, 200);
     }
   </script>
 
