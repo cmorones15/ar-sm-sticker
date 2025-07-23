@@ -2,42 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AR Experience Redirect</title>
-  <script>
-    
-    // Your hosted URLs:
-    const webxrURL = 'https://cmorones15.github.io/ar-sm-sticker/';
-    const usdzURL = 'https://cmorones15.github.io/ar-sm-sticker/box.usdz';
-
-    function isIOS() {
-      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  <title>AR Box Drop</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      touch-action: manipulation;
+      font-family: Arial, sans-serif;
+      background: #000; /* optional for better AR visibility */
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      user-select: none;
     }
-
-    function isAndroid() {
-      return /Android/.test(navigator.userAgent);
+    #loading {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      background: rgba(0,0,0,0.7);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 14px;
     }
-
-    window.onload = () => {
-      if (isIOS()) {
-        // Redirect iOS devices to USDZ Quick Look link
-        window.location.href = usdzURL;
-      } else if (isAndroid()) {
-        // Redirect Android devices to WebXR experience
-        window.location.href = webxrURL;
-      } else {
-        // Default fallback for unsupported devices
-        document.body.innerHTML = `
-          <h1>AR Experience</h1>
-          <p>Your device is not supported for AR or this experience.</p>
-          <p><a href="${webxrURL}">Try WebXR experience</a></p>
-          <p><a href="${usdzURL}">View USDZ model</a></p>
-        `;
-      }
-    };
-  </script>
+  </style>
 </head>
 <body>
-  <p>Redirecting to your AR experience…</p>
+  <div id="loading">Loading AR experience...</div>
+
   <script type="module" src="app.js"></script>
+
+  <script>
+    // Hide loading message after ARButton is added and model is loaded
+    import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js';
+
+    const loading = document.getElementById('loading');
+
+    // Poll every 500ms to check if ARButton and renderer are ready
+    const interval = setInterval(() => {
+      const arButton = document.querySelector('.ar-button');
+      if (arButton) {
+        loading.style.display = 'none';
+        clearInterval(interval);
+      }
+    }, 500);
+  </script>
 </body>
 </html>
