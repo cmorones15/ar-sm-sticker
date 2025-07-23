@@ -2,30 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Three.js ARButton Test</title>
+  <title>AR Experience Redirect</title>
+  <script>
+    // Your hosted URLs:
+    const webxrURL = 'https://cmorones15.github.io/ar-sm-sticker/';
+    const usdzURL = 'https://cmorones15.github.io/ar-sm-sticker/box.usdz';
+
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    function isAndroid() {
+      return /Android/.test(navigator.userAgent);
+    }
+
+    window.onload = () => {
+      if (isIOS()) {
+        // Redirect iOS devices to USDZ Quick Look link
+        window.location.href = usdzURL;
+      } else if (isAndroid()) {
+        // Redirect Android devices to WebXR experience
+        window.location.href = webxrURL;
+      } else {
+        // Default fallback for unsupported devices
+        document.body.innerHTML = `
+          <h1>AR Experience</h1>
+          <p>Your device is not supported for AR or this experience.</p>
+          <p><a href="${webxrURL}">Try WebXR experience</a></p>
+          <p><a href="${usdzURL}">View USDZ model</a></p>
+        `;
+      }
+    };
+  </script>
 </head>
-<body style="margin:0; overflow:hidden;">
-
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/ARButton.js';
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera();
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.xr.enabled = true;
-document.body.appendChild(renderer.domElement);
-
-document.body.appendChild(ARButton.createButton(renderer));
-
-function animate() {
-  renderer.setAnimationLoop(() => {
-    renderer.render(scene, camera);
-  });
-}
-animate();
-</script>
-
+<body>
+  <p>Redirecting to your AR experience…</p>
 </body>
 </html>
