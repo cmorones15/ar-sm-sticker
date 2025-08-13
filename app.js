@@ -31,7 +31,7 @@ function onSelect() {
   if (lid) {
     let progress = 0;
     const maxAngle = Math.PI / 2; // 90 degrees
-    const axis = 'x'; // change to 'y' or 'z' if lid opens wrong
+    const axis = 'y'; // change to 'y' or 'z' if lid opens wrong
 
     function animateLid() {
       if (progress < 1) {
