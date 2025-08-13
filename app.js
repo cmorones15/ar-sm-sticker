@@ -34,7 +34,6 @@ function init() {
     console.error('Error loading box-lid.glb:', error);
   });
 
-  // Reticle to show placement
   reticle = new THREE.Mesh(
     new THREE.RingGeometry(0.1, 0.12, 32).rotateX(-Math.PI / 2),
     new THREE.MeshBasicMaterial({ color: 0x00ff00 })
@@ -54,9 +53,8 @@ function onSelect(event) {
   if (!boxGLTF) return;
 
   const box = boxGLTF.clone();
-  box.scale.set(0.2, 0.2, 0.2);
+  box.scale.set(0.01, 0.01, 0.01);
 
-  // Position box at reticle if available, else 0.5m in front
   if (reticle.visible) {
     box.position.setFromMatrixPosition(reticle.matrix);
   } else {
@@ -69,12 +67,88 @@ function onSelect(event) {
     box.position.copy(position);
   }
 
-  // Optional pop-in animation
-  box.scale.set(0.01, 0.01, 0.01);
+  scene.add(box);
+
   const targetScale = 0.2;
   let scaleProgress = 0;
   function animatePop() {
     if (scaleProgress < 1) {
       scaleProgress += 0.05;
       const eased = easeOutBack(scaleProgress);
-      box.scale.set(targetScal
+      box.scale.set(targetScale * eased, targetScale * eased, targetScale * eased);
+      requestAnimationFrame(animatePop);
+    }
+  }
+  animatePop();
+
+  const lid = box.getObjectByName('lid');
+  if (lid) {
+    let openProgress = 0;
+    const maxAngle = Math.PI / 2;
+    function animateLid() {
+      if (openProgress < 1) {
+        openProgress += 0.03;
+        const eased = easeOutCubic(openProgress);
+        lid.rotation.x = -maxAngle * eased;
+        requestAnimationFrame(animateLid);
+      }
+    }
+    animateLid();
+  }
+}
+
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function easeOutBack(t) {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+  renderer.setAnimationLoop(render);
+}
+
+function render(timestamp, frame) {
+  if (frame) {
+    const session = renderer.xr.getSession();
+
+    if (!hitTestSourceRequested) {
+      session.requestReferenceSpace('viewer').then((referenceSpace) => {
+        session.requestHitTestSource({ space: referenceSpace }).then((source) => {
+          hitTestSource = source;
+        });
+      });
+
+      session.addEventListener('end', () => {
+        hitTestSourceRequested = false;
+        hitTestSource = null;
+      });
+
+      hitTestSourceRequested = true;
+    }
+
+    if (hitTestSource) {
+      const referenceSpace = renderer.xr.getReferenceSpace();
+      const hitTestResults = frame.getHitTestResults(hitTestSource);
+
+      if (hitTestResults.length > 0) {
+        const hit = hitTestResults[0];
+        reticle.visible = true;
+        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+      } else {
+        reticle.visible = false;
+      }
+    }
+  }
+
+  renderer.render(scene, camera);
+}
